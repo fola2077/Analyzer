@@ -35,9 +35,9 @@ namespace starterCode
         {
             while(true)
             {
-                Console.Write("Text file (blank=sherlock.txt): ");
+                Console.Write("Text file (blank=mobydick.txt): ");
                 string f=Console.ReadLine();
-                if(string.IsNullOrWhiteSpace(f)) f="sherlock.txt";
+                if(string.IsNullOrWhiteSpace(f)) f="mobydick.txt";
                 try { _bst=FileParser.Parse(f); Console.WriteLine($"Loaded {f} ({_bst.Count} unique)"); return; }
                 catch(Exception ex){Console.WriteLine(ex.Message);}
             }

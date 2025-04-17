@@ -27,3 +27,4 @@ C:\Users\KAMI\Downloads\DSA\Analyzer\starterCode\starterCode\obj\Debug\net6.0\re
 C:\Users\KAMI\Downloads\DSA\Analyzer\starterCode\starterCode\obj\Debug\net6.0\starterCode.pdb
 C:\Users\KAMI\Downloads\DSA\Analyzer\starterCode\starterCode\obj\Debug\net6.0\starterCode.genruntimeconfig.cache
 C:\Users\KAMI\Downloads\DSA\Analyzer\starterCode\starterCode\obj\Debug\net6.0\ref\starterCode.dll
+C:\Users\KAMI\Downloads\DSA\Analyzer\starterCode\starterCode\obj\Debug\net6.0\starterCode.sourcelink.json
