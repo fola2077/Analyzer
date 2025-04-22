@@ -10,7 +10,8 @@ namespace starterCode
         private Node? _root;
         public int Count { get; private set; }
 
-        public void Insert(T item){ Insert(ref _root,item); Count++; }
+        public void Insert(T item)
+        { Insert(ref _root,item); Count++; }
 
         private static void Insert(ref Node? n, T item)
         {
