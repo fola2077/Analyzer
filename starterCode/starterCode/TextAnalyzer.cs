@@ -1,35 +1,51 @@
 using System;
 using System.Linq;
+using System.Diagnostics;
+using System.IO;
 
 namespace starterCode
 {
     public class TextAnalyzer
     {
-        /* ───── 1. ASCII banners ─────────────────────────────────────── */
-        private const string BannerA = @"
-╔═══════════════════════════════════════╗
-║         WELCOME TO TEXT ANALYZER      ║
-╚═══════════════════════════════════════╝";
+        /* ───── 1. Single banner with border ───────────────────────── */
+        private const string Banner = @"
+╔══════════════════════════════════════════════════════════════════════╗
+║                                                                      ║
+║                         ★★   W E L C O M E   ★★                    ║
+║                                                                      ║
+║                                                                      ║ 
+║                                                                      ║
+║                     T  E  X  T   A  N  A  L  Y  Z  E  R            ║
+╚══════════════════════════════════════════════════════════════════════╝";
 
-        private const string BannerB = @"
- _____         _        _                _                 
-|_   _|__  ___| |_ __ _| | ___   __ _   / \   __ _  ___ ___
-  | |/ _ \/ __| __/ _` | |/ _ \ / _` | / _ \ / _` |/ __/ _ \
-  | |  __/\__ \ || (_| | | (_) | (_| |/ ___ \ (_| | (_|  __/
-  |_|\___||___/\__\__,_|_|\___/ \__, /_/   \_\__,_|\___\___|
-                               |___/                        ";
+        /* ───── 2. Theme & colour helpers ──────────────────────────── */
+        private static readonly ConsoleColor Accent = ConsoleColor.Cyan;
 
-        private const string BannerC = @"
-════════════════════════════════════════════════════════════
-                ★  TEXT  ANALYZER  ★
-════════════════════════════════════════════════════════════";
+        private static void WriteAccent(string text)
+        {
+            var old = Console.ForegroundColor;
+            Console.ForegroundColor = Accent;
+            Console.Write(text);
+            Console.ForegroundColor = old;
+        }
 
-        private static readonly string[] Banners = { BannerA, BannerB, BannerC };
+        private static void WriteOk(string text)  =>
+            WriteWith(text, ConsoleColor.Green);
+        private static void WriteErr(string text) =>
+            WriteWith(text, ConsoleColor.Red);
 
-        /* ───── 2. Data field ─────────────────────────────────────────── */
+        private static void WriteWith(string text, ConsoleColor fg)
+        {
+            var old = Console.ForegroundColor;
+            Console.ForegroundColor = fg;
+            Console.Write(text);
+            Console.ForegroundColor = old;
+        }
+
+        /* ───── 3. Data field ───────────────────────────────────────── */
         private BinarySearchTree<WordInfo>? _bst;
 
-        /* ───── 3. Public entry point ─────────────────────────────────── */
+        /* ───── 4. Public entry point ──────────────────────────────── */
         public void Run()
         {
             ShowBanner();
@@ -38,51 +54,50 @@ namespace starterCode
             while (true)
             {
                 ShowMenu();
-                switch (Console.ReadLine()?.Trim())
+                switch (Console.ReadLine()?.Trim().ToLowerInvariant())
                 {
                     case "0": return;
                     case "1": _bst!.PreOrder().ToList().ForEach(Console.WriteLine); break;
-                    case "2": Console.WriteLine($"Number of unique words: {_bst!.Count}"); break;
+                    case "2": WriteAccent($"Unique words: {_bst!.Count}\n"); break;
                     case "3": ListAlphabetical(); break;
                     case "4": ShowLongest(); break;
                     case "5": ShowMostFrequent(); break;
                     case "6": ShowLineNumbers(); break;
                     case "7": ShowWordFrequency(); break;
                     case "8": LoadFile(); break;
-                    default:  Console.WriteLine("✖  Please enter a choice from 0‑8."); break;
+                    case "9": ExportCsv(); break;
+                    default : WriteErr("✖  Please enter a choice from 0-9.\n"); break;
                 }
             }
         }
 
-        /* ───── 4. UI helpers ─────────────────────────────────────────── */
-
+        /* ───── 5. UI helpers ───────────────────────────────────────── */
         private static void ShowBanner()
         {
             Console.Clear();
-            Console.WriteLine("Choose a banner style: 1‑Simple  2‑Figlet  3‑Double‑Line (Enter for 1)");
-            string pick = Console.ReadLine()?.Trim() ?? "";
-            int i = pick switch { "2" => 1, "3" => 2, _ => 0 };   // safe index
-            Console.Clear();
-            Console.WriteLine(Banners[i]);
+            WriteAccent(Banner);
+            Console.WriteLine();
         }
 
         private static void ShowMenu()
         {
             Console.WriteLine(@"
 ────────────────────────────────────────────────────────────
-  1  Display every word (pre‑order, unsorted)     
-  2  Show HOW MANY unique words are stored       
-  3  List words ALPHABETICALLY (choose A→Z / Z→A)
+  1  Display every word (pre-order, unsorted)     
+  2  Show HOW MANY unique words are stored       
+  3  List words ALPHABETICALLY (paged)           
   4  Show the LONGEST word                       
-  5  Show the MOST‑FREQUENT word                 
-  6  Show LINE NUMBERS for a given word          
+  5  Show the MOST-FREQUENT word                 
+  6  Show LINE NUMBERS for a given word          
   7  Show FREQUENCY for a given word             
   8  Load a DIFFERENT text file                  
+  9  EXPORT all stats to CSV                     
   0  Exit program                                
 ────────────────────────────────────────────────────────────");
             Console.Write("Your choice: ");
         }
 
+        /* ───── 6. File loading with progress & timing ─────────────── */
         private void LoadFile()
         {
             while (true)
@@ -93,64 +108,84 @@ namespace starterCode
 
                 try
                 {
-                    _bst = FileParser.Parse(path);
-                    Console.WriteLine($"✓  Loaded '{path}' : {_bst.Count} unique words.\n");
+                    var sw = Stopwatch.StartNew();
+                    _bst = FileParser.ParseWithProgress(path);
+                    sw.Stop();
+                    WriteOk($"\n✓  Loaded '{path}' ");
+                    WriteAccent($"({_bst.Count} unique, {sw.ElapsedMilliseconds} ms)\n\n");
                     return;
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"✖  {ex.Message}");
+                    WriteErr($"✖  {ex.Message}\n");
                 }
             }
         }
 
-        /* ───── 5. Feature handlers ──────────────────────────────────── */
+        /* ───── 7. Feature handlers ─────────────────────────────────── */
 
         private void ListAlphabetical()
         {
             Console.Write("List A→Z or Z→A? (A/Z): ");
-            string choice = Console.ReadLine()?.Trim().ToLowerInvariant() ?? "a";
-            bool desc = choice == "z";
+            bool desc = (Console.ReadLine()?.Trim().ToLowerInvariant() ?? "a") == "z";
             var seq = desc ? _bst!.InOrder().Reverse() : _bst!.InOrder();
-            foreach (var w in seq) Console.WriteLine(w);
+
+            const int PageSize = 30;
+            int line = 0;
+            foreach (var w in seq)
+            {
+                Console.WriteLine(w);
+                if (++line % PageSize == 0)
+                {
+                    WriteAccent("-- more -- "); Console.ReadLine();
+                }
+            }
         }
 
         private void ShowLongest() =>
-            Console.WriteLine(_bst!.InOrder()
-                                   .OrderByDescending(w => w.Word.Length)
-                                   .First());
+            WriteAccent(_bst!.InOrder()
+                             .OrderByDescending(w => w.Word.Length)
+                             .First() + "\n");
 
         private void ShowMostFrequent() =>
-            Console.WriteLine(_bst!.InOrder()
-                                   .OrderByDescending(w => w.Count)
-                                   .First());
+            WriteAccent(_bst!.InOrder()
+                             .OrderByDescending(w => w.Count)
+                             .First() + "\n");
 
         private void ShowLineNumbers()
         {
             Console.Write("Enter word: ");
             string? input = Console.ReadLine();
-            if (string.IsNullOrWhiteSpace(input)) { Console.WriteLine("No word entered."); return; }
+            if (string.IsNullOrWhiteSpace(input)) { WriteErr("No word entered.\n"); return; }
 
             string w = input.ToLowerInvariant();
             var probe = new WordInfo(w, 0);
             if (_bst!.TryGet(probe, out var info))
-                Console.WriteLine($"{w} appears on line(s): {string.Join(", ", info.LineNumbers)}");
+                WriteAccent($"{w} appears on line(s): {string.Join(", ", info.LineNumbers)}\n");
             else
-                Console.WriteLine("Word not found.");
+                WriteErr("Word not found.\n");
         }
 
         private void ShowWordFrequency()
         {
             Console.Write("Enter word: ");
             string? input = Console.ReadLine();
-            if (string.IsNullOrWhiteSpace(input)) { Console.WriteLine("No word entered."); return; }
+            if (string.IsNullOrWhiteSpace(input)) { WriteErr("No word entered.\n"); return; }
 
             string w = input.ToLowerInvariant();
             var probe = new WordInfo(w, 0);
             if (_bst!.TryGet(probe, out var info))
-                Console.WriteLine($"{w} appears {info.Count} time(s).");
+                WriteAccent($"{w} appears {info.Count} time(s).\n");
             else
-                Console.WriteLine("Word not found.");
+                WriteErr("Word not found.\n");
+        }
+
+        private void ExportCsv()
+        {
+            const string FileName = "word_stats.csv";
+            File.WriteAllLines(FileName,
+                _bst!.InOrder().Select(w => $"{w.Word},{w.Count}"));
+            WriteOk($"✓  CSV exported to {FileName}\n");
         }
     }
 }

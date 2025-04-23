@@ -1,6 +1,6 @@
 ﻿// Program.cs
-using System;                 // optional, but conventional
-using starterCode;            // gives easy access to TextAnalyzer
+using System;                 
+using starterCode;            
 
 namespace starterCode
 {
