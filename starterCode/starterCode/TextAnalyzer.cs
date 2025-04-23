@@ -8,15 +8,13 @@ namespace starterCode
     public class TextAnalyzer
     {
         /* ───── 1. Single banner with border ───────────────────────── */
-        private const string Banner = @"
-╔══════════════════════════════════════════════════════════════════════╗
-║                                                                      ║
-║                         ★★   W E L C O M E   ★★                    ║
-║                                                                      ║
-║                                                                      ║ 
-║                                                                      ║
-║                     T  E  X  T   A  N  A  L  Y  Z  E  R            ║
-╚══════════════════════════════════════════════════════════════════════╝";
+    private const string Banner = @"
+    ╔════════════════════════════════════════════════════════════╗
+    ║                                                            ║
+    ║          ★  T  E  X  T     A  N  A  L  Y  Z  E  R  ★      ║
+    ║                                                            ║
+    ╚════════════════════════════════════════════════════════════╝";
+
 
         /* ───── 2. Theme & colour helpers ──────────────────────────── */
         private static readonly ConsoleColor Accent = ConsoleColor.Cyan;
@@ -130,16 +128,9 @@ namespace starterCode
             bool desc = (Console.ReadLine()?.Trim().ToLowerInvariant() ?? "a") == "z";
             var seq = desc ? _bst!.InOrder().Reverse() : _bst!.InOrder();
 
-            const int PageSize = 30;
-            int line = 0;
             foreach (var w in seq)
-            {
                 Console.WriteLine(w);
-                if (++line % PageSize == 0)
-                {
-                    WriteAccent("-- more -- "); Console.ReadLine();
-                }
-            }
+
         }
 
         private void ShowLongest() =>
