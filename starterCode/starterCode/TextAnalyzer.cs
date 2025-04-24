@@ -8,12 +8,16 @@ namespace starterCode
     public class TextAnalyzer
     {
         /* ───── 1. Single banner with border ───────────────────────── */
-    private const string Banner = @"
-    ╔════════════════════════════════════════════════════════════╗
-    ║                                                            ║
-    ║          ★  T  E  X  T     A  N  A  L  Y  Z  E  R  ★      ║
-    ║                                                            ║
-    ╚════════════════════════════════════════════════════════════╝";
+    private static readonly string Banner =
+    @"
+        ╔════════════════════════════════════════════════════════════╗
+        ║                                                            ║
+        ║          ★  T  E  X  T     A  N  A  L  Y  Z  E  R  ★       ║
+        ║                                                            ║
+        ╚════════════════════════════════════════════════════════════╝"
+    .Replace("\r", "")       
+    .Replace("\n    ", "\n");
+
 
 
         /* ───── 2. Theme & colour helpers ──────────────────────────── */
@@ -101,8 +105,20 @@ namespace starterCode
             while (true)
             {
                 Console.Write("\nEnter path to .txt file (Enter for default 'mobydick.txt'): ");
-                string path = Console.ReadLine();
-                if (string.IsNullOrWhiteSpace(path)) path = "mobydick.txt";
+                string? input = Console.ReadLine();
+
+                // Default demo file
+                string path = string.IsNullOrWhiteSpace(input) ? "mobydick.txt" : input.Trim();
+
+                // --- NEW graceful tweaks ------------------------------------
+                if (path.StartsWith('"') && path.EndsWith('"'))
+                    path = path[1..^1];                 // remove Copy-as-Path quotes
+
+                if (path.StartsWith("~"))
+                    path = Path.Combine(
+                        Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
+                        path[2..]);                      // expand ~/Desktop/foo.txt
+                // ------------------------------------------------------------
 
                 try
                 {
@@ -119,6 +135,7 @@ namespace starterCode
                 }
             }
         }
+
 
         /* ───── 7. Feature handlers ─────────────────────────────────── */
 
