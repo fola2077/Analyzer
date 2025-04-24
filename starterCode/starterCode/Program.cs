@@ -1,5 +1,6 @@
 ﻿// Program.cs
-using System;                 
+using System;
+using System.Text;
 using starterCode;            
 
 namespace starterCode
@@ -9,6 +10,7 @@ namespace starterCode
         // Entry‑point method – must be inside a class/struct and inside a namespace block.
         private static void Main(string[] args)
         {
+            Console.OutputEncoding = Encoding.UTF8;
             new TextAnalyzer().Run();
         }
     }
