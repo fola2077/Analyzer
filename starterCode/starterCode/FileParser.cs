@@ -1,21 +1,21 @@
+// FileParser.cs
 using System;
 using System.IO;
 using System.Text.RegularExpressions;
 
 namespace starterCode
 {
-    public static class FileParser
+    public class FileParser
     {
         private static readonly char[] DELIMS =
-            { ' ', '\t', ',', '"', ':', ';', '?', '!', '-', '.', '\'', '*', '—','–', '(', ')', '[', ']', '{', '}', '/', '\\' };
+        { ' ', '\t', ',', '"', ':', ';', '?', '!', '-', '.', '\'', '*', '—','–', '(', ')', '[', ']', '{', '}', '/', '\\' };
 
         private static readonly Regex RX =
             new(@"\b(?:[a-z]{2,}|[ai])\b", RegexOptions.IgnoreCase);
 
-
-        public static BinarySearchTree<WordInfo> ParseWithProgress(string path)
+        public static BinaryTree ParseWithProgress(string path)
         {
-            var tree  = new BinarySearchTree<WordInfo>();
+            var tree = new BinaryTree();
             string[] lines = File.ReadAllLines(path);
             int total = lines.Length;
 
@@ -25,24 +25,17 @@ namespace starterCode
                 if (i % 100 == 0) ShowBar(i, total);
             }
             ShowBar(total, total);
-            Console.WriteLine();           // newline after bar
+            Console.WriteLine();
             return tree;
         }
 
-        // helper pulled out of previous Parse()
-        public static void ParseLineInto(BinarySearchTree<WordInfo> tree,
-                                         string line, int lineNumber)
+        private static void ParseLineInto(BinaryTree tree, string line, int lineNumber)
         {
             foreach (string raw in line.Split(DELIMS, StringSplitOptions.RemoveEmptyEntries))
             {
-                string w = raw.ToLowerInvariant();
-                if (!RX.IsMatch(w)) continue;
-
-                var probe = new WordInfo(w, lineNumber);
-                if (tree.TryGet(probe, out var existing))
-                    existing.AddOccurrence(lineNumber);
-                else
-                    tree.Insert(probe);
+                string word = raw.ToLowerInvariant();
+                if (!RX.IsMatch(word)) continue;
+                tree.Insert(word, lineNumber);
             }
         }
 

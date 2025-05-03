@@ -1,22 +1,29 @@
+// WordInfo.cs
 using System;
 using System.Collections.Generic;
 
 namespace starterCode
 {
-    public sealed class WordInfo : IComparable<WordInfo>
+    // Class to store information about each word
+    public class WordInfo
     {
         public string Word { get; }
-        public int Count { get; private set; } = 1;
-        private readonly List<int> _lines = new();
-        public IReadOnlyList<int> LineNumbers => _lines;
+        public int Frequency { get; private set; } = 1;
+        private readonly List<int> _lineNumbers = new();
+        public IReadOnlyList<int> LineNumbers => _lineNumbers;
 
-        public WordInfo(string word, int line)  { Word = word;  _lines.Add(line); }
+        public WordInfo(string word, int line)
+        {
+            Word = word;
+            _lineNumbers.Add(line);
+        }
 
-        public void AddOccurrence(int line) { Count++; _lines.Add(line); }
+        public void AddOccurrence(int line)
+        {
+            Frequency++;
+            _lineNumbers.Add(line);
+        }
 
-        public int CompareTo(WordInfo? other) =>
-            string.Compare(Word, other!.Word, StringComparison.OrdinalIgnoreCase);
-
-        public override string ToString() => $"{Word,-20} {Count,5}";
+        public override string ToString() => $"{Word,-20} {Frequency,5}";
     }
-}
+} 
